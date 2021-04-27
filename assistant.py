@@ -3,17 +3,24 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import speech_recognition as sr
 import time
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 #INIT
 r = sr.Recognizer()
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 WIT_AI_KEY = os.environ.get("WIT_AI_KEY")
+SPOTIPY_CLIENT_ID=os.environ.get("SPOTIPY_CLIENT_ID")
+SPOTIPY_CLIENT_SECRET=os.environ.get("SPOTIPY_CLIENT_SECRET")
+SPOTIPY_REDIRECT_URI=os.environ.get("SPOTIPY_REDIRECT_URI")
+scope = 'user-read-private user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private user-library-modify'
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI))
 
 #LISTEN TO AUDIO
 with sr.Microphone() as source:
   print("Listening...")
-  audio = r.listen(source, timeout=5, phrase_time_limit=2)
+  audio = r.listen(source, timeout=5, phrase_time_limit=4)
   print("Done Listening.")
 
 #AUDIO TO TEXT
@@ -56,16 +63,38 @@ if command.split()[0] in ("close", "kill", "end", "terminate", "destroy", "nuke"
   elif command == "spotify":
     kill_process("spotify.exe")
 
-if command.split()[0] in ("run", "start", "open"):
+elif command.split()[0] in ("run", "start", "open"):
   #RUN FUNCTIONS
   command = remove_first_word(command)
   if command == "league of legends":
     run_process(r"C:\Riot Games\League of Legends\LeagueClient.exe")
 
-if command.split()[0] in ("restart"):
+elif command.split()[0] in ("restart"):
   command = remove_first_word(command)
   if command == "league of legends":
     kill_process("League Of Legends.exe")
     kill_process("LeagueClientUX.exe")
     time.sleep(10)
     run_process(r"C:\Riot Games\League of Legends\LeagueClient.exe")
+
+elif command.split()[0] in ("spotify", "music"):
+  #SPOTIFY FUNCTIONS
+  command = remove_first_word(command)
+  if command == "pause":
+    sp.pause_playback()
+  elif command in ("unpause", "resume", "start"):
+    sp.start_playback()
+  elif command == "previous":
+    sp.previous_track()
+  elif command == "like":
+    sp.current_user_saved_tracks_add(tracks=[sp.current_playback()["item"]["uri"]])
+
+else:
+  #COMMAND NOT FOUND
+  print("Command not found... Exiting in 5")
+  time.sleep(5)
+
+#TODO
+# Add opening specific webpages
+# Searching Youtube for video
+# More complex stuff, maybe opening steam games? formatting applications on windows?
