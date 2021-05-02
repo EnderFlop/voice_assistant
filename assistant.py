@@ -5,6 +5,7 @@ import speech_recognition as sr
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+import webbrowser
 
 #INIT
 r = sr.Recognizer()
@@ -14,6 +15,10 @@ WIT_AI_KEY = os.environ.get("WIT_AI_KEY")
 SPOTIPY_CLIENT_ID=os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET=os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI=os.environ.get("SPOTIPY_REDIRECT_URI")
+CHROME_PATH=os.environ.get("CHROME_PATH")
+IBM_USERNAME=os.environ.get("IBM_USERNAME")
+IBM_API_KEY=os.environ.get("IBM_API_KEY")
+IBM_URL=os.environ.get("IBM_URL")
 scope = 'user-read-private user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private user-library-modify'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI))
 
@@ -25,11 +30,12 @@ with sr.Microphone() as source:
 
 #AUDIO TO TEXT
 try:
-  command = r.recognize_wit(audio, key=WIT_AI_KEY)
+  #command = r.recognize_wit(audio, key=WIT_AI_KEY)
+  command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY)
 except sr.UnknownValueError:
-  print("Wit.ai could not understand audio")
+  print("STT could not understand audio")
 except sr.RequestError as e:
-  print("Could not request results from Wit.ai service; {0}".format(e))
+  print("Could not request results from STT service; {0}".format(e))
 
 #UTILITY FUNCTIONS
 def kill_process(process_name):
@@ -43,10 +49,18 @@ def run_process(filepath):
 def remove_first_word(command):
   return command.split(" ", 1)[1]
 
+def open_tab(url):
+  print(f"opening {url}")
+  webbrowser.get(f"\"{CHROME_PATH}\" %s").open(f"https://www.{url}")
+
+def get_first_word(string):
+  return string.split()[0]
+
 #RUN COMMAND
 print("Running command: " + command)
+first_word = get_first_word(command)
 
-if command.split()[0] in ("close", "kill", "end", "terminate", "destroy", "nuke", "abolish", "assimilate", "decimate", "exterminate"):
+if first_word in ("close", "kill", "end", "terminate", "destroy", "nuke", "abolish", "assimilate", "decimate", "exterminate"):
   #KILL FUNCTIONS
   command = remove_first_word(command)
   print(command)
@@ -63,13 +77,34 @@ if command.split()[0] in ("close", "kill", "end", "terminate", "destroy", "nuke"
   elif command == "spotify":
     kill_process("spotify.exe")
 
-elif command.split()[0] in ("run", "start", "open"):
+elif first_word in ("run", "start", "open"):
   #RUN FUNCTIONS
   command = remove_first_word(command)
   if command == "league of legends":
     run_process(r"C:\Riot Games\League of Legends\LeagueClient.exe")
 
-elif command.split()[0] in ("restart"):
+  #WEBBROWSER FUNCTIONS (url = everything after 'www.' in a url)
+  elif command == "youtube":
+    open_tab("youtube.com")
+  elif command == "notepad":
+    open_tab("rapidtables.com/tools/notepad.html")
+  elif command == "chess":
+    open_tab("chess.com/play/online")
+
+  elif get_first_word(command) == "reddit":
+    if len(command) == 0:
+      open_tab("reddit.com")
+    else:
+      command = remove_first_word(command) #remove reddit
+      command = command.replace(" ", "") #reddit doesnt use spaces in subreddit names
+      open_tab(f"reddit.com/r/{command}")
+
+  elif get_first_word(command) == "op.gg":
+    pass
+  
+
+
+elif first_word in ("restart"):
   command = remove_first_word(command)
   if command == "league of legends":
     kill_process("League Of Legends.exe")
@@ -77,7 +112,7 @@ elif command.split()[0] in ("restart"):
     time.sleep(10)
     run_process(r"C:\Riot Games\League of Legends\LeagueClient.exe")
 
-elif command.split()[0] in ("spotify", "music"):
+elif first_word in ("spotify", "music"):
   #SPOTIFY FUNCTIONS
   command = remove_first_word(command)
   if command == "pause":
