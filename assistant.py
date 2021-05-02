@@ -9,6 +9,7 @@ import webbrowser
 
 #INIT
 r = sr.Recognizer()
+r.energy_threshold = 300
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 WIT_AI_KEY = os.environ.get("WIT_AI_KEY")
