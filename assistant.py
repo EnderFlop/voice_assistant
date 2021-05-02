@@ -32,7 +32,7 @@ with sr.Microphone() as source:
 #AUDIO TO TEXT
 try:
   #command = r.recognize_wit(audio, key=WIT_AI_KEY)
-  command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY)
+  command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY).lower()
 except sr.UnknownValueError:
   print("STT could not understand audio")
 except sr.RequestError as e:
