@@ -43,8 +43,10 @@ except sr.RequestError as e:
   print("Could not request results from STT service; {0}".format(e))
 
 #Recorder function
-with open("record.txt", "w") as command_record:
-  command_record.write(command)
+with open("record.txt", "r+") as command_record:
+  record = command_record.read()
+  record += f"\n{command}"
+  command_record.write(record) #CHANGE SO IT DOESNT ERASE< IT ADDS
 
 #UTILITY FUNCTIONS
 def kill_process(process_name):
@@ -134,6 +136,10 @@ elif first_word in ("spotify", "music"):
     sp.previous_track()
   elif command == "like":
     sp.current_user_saved_tracks_add(tracks=[sp.current_playback()["item"]["uri"]])
+
+elif first_word in ("google", "search"):
+  command = remove_first_word(command)
+  open_tab(f"google.com/search?q={command}")
 
 else:
   #COMMAND NOT FOUND
