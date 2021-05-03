@@ -24,6 +24,7 @@ CHROME_PATH=os.environ.get("CHROME_PATH")
 GOOGLE_APPLICATION_CREDENTIALS=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 scope = 'user-read-private user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private user-library-modify'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI))
+preferred_phrases = open("phrases.txt", "r").read().splitlines()
 
 #LISTEN TO AUDIO
 with sr.Microphone() as source:
@@ -35,7 +36,7 @@ with sr.Microphone() as source:
 try:
   #command = r.recognize_wit(audio, key=WIT_AI_KEY)
   #command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY).lower()
-  command = r.recognize_google_cloud(audio, preferred_phrases=None).lower()
+  command = r.recognize_google_cloud(audio, preferred_phrases=preferred_phrases).lower()
 except sr.UnknownValueError:
   print("STT could not understand audio")
 except sr.RequestError as e:
@@ -62,6 +63,7 @@ def get_first_word(string):
 
 #RUN COMMAND
 print("Running command: " + command)
+command = command.strip() #google puts a space at the end for some reason!
 first_word = get_first_word(command)
 
 if first_word in ("close", "kill", "end", "terminate", "destroy", "nuke", "abolish", "assimilate", "decimate", "exterminate"):
@@ -96,15 +98,16 @@ elif first_word in ("run", "start", "open"):
     open_tab("chess.com/play/online")
 
   elif get_first_word(command) == "reddit":
-    if len(command) == 0:
+    if command == "reddit":
       open_tab("reddit.com")
     else:
       command = remove_first_word(command) #remove reddit
       command = command.replace(" ", "") #reddit doesnt use spaces in subreddit names
       open_tab(f"reddit.com/r/{command}")
 
-  elif get_first_word(command) == "op.gg":
-    pass
+  elif get_first_word(command) in ("runes", "statistics", "build"): #STT really hates 'op.gg' :(
+    champion = remove_first_word(command)
+    open_tab(f"op.gg/champion/{champion}")
   
 
 
