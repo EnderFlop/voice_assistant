@@ -6,20 +6,22 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import webbrowser
+import json
 
 #INIT
 r = sr.Recognizer()
 r.energy_threshold = 300
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
-WIT_AI_KEY = os.environ.get("WIT_AI_KEY")
+#WIT_AI_KEY = os.environ.get("WIT_AI_KEY")
 SPOTIPY_CLIENT_ID=os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET=os.environ.get("SPOTIPY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI=os.environ.get("SPOTIPY_REDIRECT_URI")
 CHROME_PATH=os.environ.get("CHROME_PATH")
-IBM_USERNAME=os.environ.get("IBM_USERNAME")
-IBM_API_KEY=os.environ.get("IBM_API_KEY")
-IBM_URL=os.environ.get("IBM_URL")
+#IBM_USERNAME=os.environ.get("IBM_USERNAME")
+#IBM_API_KEY=os.environ.get("IBM_API_KEY")
+#IBM_URL=os.environ.get("IBM_URL")
+GOOGLE_APPLICATION_CREDENTIALS=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 scope = 'user-read-private user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private user-library-modify'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI))
 
@@ -32,7 +34,8 @@ with sr.Microphone() as source:
 #AUDIO TO TEXT
 try:
   #command = r.recognize_wit(audio, key=WIT_AI_KEY)
-  command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY).lower()
+  #command = r.recognize_ibm(audio, username="apikey", password=IBM_API_KEY).lower()
+  command = r.recognize_google_cloud(audio, preferred_phrases=None).lower()
 except sr.UnknownValueError:
   print("STT could not understand audio")
 except sr.RequestError as e:
