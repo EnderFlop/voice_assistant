@@ -3,4 +3,5 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir C:\Users\EnderFlop\Desktop\creative\python\voice_assistant  ; Ensures a consistent starting directory.
 
 Numpad9::
-	Run, assistant.py
+	Run, python.exe assistant.py
+	Return
