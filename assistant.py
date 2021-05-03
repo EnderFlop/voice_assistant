@@ -42,6 +42,10 @@ except sr.UnknownValueError:
 except sr.RequestError as e:
   print("Could not request results from STT service; {0}".format(e))
 
+#Recorder function
+with open("record.txt", "w") as command_record:
+  command_record.write(command)
+
 #UTILITY FUNCTIONS
 def kill_process(process_name):
   print(f"killing {process_name}")

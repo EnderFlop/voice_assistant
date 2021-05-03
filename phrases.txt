@@ -6,6 +6,19 @@ Youtube
 Chess
 Notepad
 
+Open
+Run
+Start
+
+Close
+Kill
+
+Restart
+
+Runes
+Statistics
+Build
+
 Aatrox
 Ahri
 Akali
