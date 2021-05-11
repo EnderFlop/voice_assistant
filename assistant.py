@@ -43,10 +43,8 @@ except sr.RequestError as e:
   print("Could not request results from STT service; {0}".format(e))
 
 #Recorder function
-with open("record.txt", "r+") as command_record:
-  record = command_record.read()
-  record += f"\n{command}"
-  command_record.write(record) #CHANGE SO IT DOESNT ERASE< IT ADDS
+with open("record.txt", "a") as command_record:
+  command_record.write("\n" + command) #CHANGE SO IT DOESNT ERASE< IT ADDS
 
 #UTILITY FUNCTIONS
 def kill_process(process_name):
@@ -71,6 +69,10 @@ def get_first_word(string):
 print("Running command: " + command)
 command = command.strip() #google puts a space at the end for some reason!
 first_word = get_first_word(command)
+
+if first_word == "computer": #just so i can say "COMPUTER" before a command and it doesnt break it
+  command = remove_first_word(command)
+  first_word = get_first_word(command)
 
 if first_word in ("close", "kill", "end", "terminate", "destroy", "nuke", "abolish", "assimilate", "decimate", "exterminate"):
   #KILL FUNCTIONS
